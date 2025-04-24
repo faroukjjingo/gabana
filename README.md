@@ -1,5 +1,3 @@
-You’re right — here’s a fully comprehensive README.md for the AnonStories project, including detailed setup, architecture, technologies, development instructions, deployment, contribution guidelines, and more.
-
 # AnonStories – Anonymous Confessions & Life Stories Forum
 
 **AnonStories** is a full-stack community forum built for people to share anonymous stories, confessions, or life experiences without the need for personal accounts. It enables meaningful storytelling, emotional expression, and community discussion in a safe, anonymous environment.
@@ -221,4 +219,3 @@ License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
 
-Let me know if you'd like this README exported into a `.md` file or scaffolded with your GitHub repo.
