@@ -1,2 +1,925 @@
-npm install express mongoose jsonwebtoken dotenv cors bcryptjs
-npm install --save-dev typescript ts-node-dev @types/express @types/node @types/cors @types/jsonwebtoken @types/bcryptjs
+
+# Create directory structure
+mkdir -p anonstories/client/public anonstories/client/src/assets anonstories/client/src/components anonstories/client/src/pages anonstories/client/src/services anonstories/client/src/types anonstories/server/controllers anonstories/server/models anonstories/server/routes anonstories/server/middleware anonstories/server/utils anonstories/.devcontainer
+
+# Create all files
+touch anonstories/client/public/index.html
+touch anonstories/client/public/favicon.ico
+touch anonstories/client/src/assets/logo.svg
+touch anonstories/client/src/components/Header.tsx
+touch anonstories/client/src/components/StoryCard.tsx
+touch anonstories/client/src/components/StoryForm.tsx
+touch anonstories/client/src/components/CommentThread.tsx
+touch anonstories/client/src/components/LoginForm.tsx
+touch anonstories/client/src/components/Loader.tsx
+touch anonstories/client/src/pages/Home.tsx
+touch anonstories/client/src/pages/SubmitStory.tsx
+touch anonstories/client/src/pages/StoryPage.tsx
+touch anonstories/client/src/pages/Login.tsx
+touch anonstories/client/src/services/api.ts
+touch anonstories/client/src/types/index.ts
+touch anonstories/client/src/App.tsx
+touch anonstories/client/src/main.tsx
+touch anonstories/client/src/index.css
+touch anonstories/client/tailwind.config.js
+touch anonstories/client/postcss.config.js
+touch anonstories/client/tsconfig.json
+touch anonstories/client/package.json
+touch anonstories/server/controllers/storyController.ts
+touch anonstories/server/controllers/commentController.ts
+touch anonstories/server/controllers/authController.ts
+touch anonstories/server/models/Story.ts
+touch anonstories/server/models/Comment.ts
+touch anonstories/server/models/User.ts
+touch anonstories/server/routes/storyRoutes.ts
+touch anonstories/server/routes/commentRoutes.ts
+touch anonstories/server/routes/authRoutes.ts
+touch anonstories/server/middleware/auth.ts
+touch anonstories/server/middleware/errorHandler.ts
+touch anonstories/server/utils/generateToken.ts
+touch anonstories/server/app.ts
+touch anonstories/server/server.ts
+touch anonstories/server/tsconfig.json
+touch anonstories/server/package.json
+touch anonstories/.devcontainer/devcontainer.json
+touch anonstories/.devcontainer/Dockerfile
+touch anonstories/.env.example
+touch anonstories/.gitignore
+touch anonstories/README.md
+touch anonstories/package.json
+touch anonstories/tsconfig.json
+# anonstories/client/public/index.html
+
+
+
+  
+  
+  
+
+
+  
+
+
+
+# anonstories/client/src/App.tsx
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import SubmitStory from './pages/SubmitStory';
+import StoryPage from './pages/StoryPage';
+import Login from './pages/Login';
+import Header from './components/Header';
+
+function App() {
+  return (
+    
+      
+      
+        } />
+        } />
+        } />
+        } />
+      
+    
+  );
+}
+
+export default App;
+# anonstories/client/src/main.tsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import './index.css';
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  
+    
+  
+);
+# anonstories/client/src/index.css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+# anonstories/client/tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./src/**/*.{ts,tsx}'],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+# anonstories/client/postcss.config.js
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+# anonstories/client/tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx"
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
+# anonstories/client/package.json
+{
+  "name": "anonstories-client",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.16.0",
+    "axios": "^1.6.0",
+    "tailwindcss": "^3.3.3"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^4.0.3",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5",
+    "postcss": "^8.4.27",
+    "autoprefixer": "^10.4.14"
+  }
+}
+# anonstories/server/app.ts
+import express from 'express';
+import cors from 'cors';
+import storyRoutes from './routes/storyRoutes';
+import commentRoutes from './routes/commentRoutes';
+import authRoutes from './routes/authRoutes';
+import errorHandler from './middleware/errorHandler';
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+app.use('/api/stories', storyRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/auth', authRoutes);
+
+app.use(errorHandler);
+
+export default app;
+# anonstories/server/server.ts
+import app from './app';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const PORT = process.env.PORT || 5000;
+const MONGO_URI = process.env.MONGO_URI || '';
+
+mongoose
+  .connect(MONGO_URI)
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('MongoDB connection error:', err);
+  });
+# anonstories/server/tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "CommonJS",
+    "outDir": "./dist",
+    "rootDir": "./",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
+}
+# anonstories/server/package.json
+{
+  "name": "anonstories-server",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.5.0",
+    "jsonwebtoken": "^9.0.1",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.5.1",
+    "@types/cors": "^2.8.13",
+    "@types/jsonwebtoken": "^9.0.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.0.2"
+  }
+}
+# anonstories/.env.example
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_super_secret_key
+# anonstories/.gitignore
+node_modules/
+dist/
+.env
+# anonstories/.devcontainer/devcontainer.json
+{
+  "name": "AnonStories",
+  "dockerFile": "Dockerfile",
+  "appPort": [5000, 5173],
+  "extensions": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode"
+  ],
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash"
+  },
+  "postCreateCommand": "npm install"
+}
+# anonstories/.devcontainer/Dockerfile
+FROM node:18
+
+WORKDIR /workspace
+
+RUN npm install -g npm@latest
+
+EXPOSE 5000 5173
+# anonstories/package.json
+{
+  "name": "anonstories",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": ["client", "server"],
+  "scripts": {
+    "dev": "concurrently \"cd client && npm run dev\" \"cd server && npm run dev\"",
+    "build": "npm run build -w client && npm run build -w server",
+    "start": "npm run start -w server"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.1"
+  }
+}
+# anonstories/tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["client/**/*", "server/**/*"]
+}
+# anonstories/client/src/components/Header.tsx
+import { Link } from 'react-router-dom';
+
+export default function Header() {
+  return (
+    
+      
+        AnonStories
+        
+          Submit
+          Login
+        
+      
+    
+  );
+}
+# anonstories/client/src/components/StoryCard.tsx
+import { Story } from '../types';
+
+interface Props {
+  story: Story;
+}
+
+export default function StoryCard({ story }: Props) {
+  return (
+    
+      
+{story.title}
+      
+{story.content.slice(0, 100)}...
+      
+Upvotes: {story.upvotes}
+    
+  );
+}
+# anonstories/client/src/components/StoryForm.tsx
+import { useState } from 'react';
+import { createStory } from '../services/api';
+
+export default function StoryForm() {
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await createStory({ title, content });
+    setTitle('');
+    setContent('');
+  };
+
+  return (
+    
+      {title} setTitle(e.target.value)}
+        placeholder="Title"
+        className="border p-2 mb-2 w-full"
+      />
+       setContent(e.target.value)}
+        placeholder="Your story..."
+        className="border p-2 mb-2 w-full"
+      />
+      <button type="submit" className="bg-blue-500 text-white p-2">Submit</button>
+    </form>
+  );
+}
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/client/src/components/CommentThread.tsx
+import { Comment } from '../types';
+
+interface Props {
+  comments: Comment[];
+}
+
+export default function CommentThread({ comments }: Props) {
+  return (
+    <div className="mt-4">
+      {comments.map((comment) => (
+        <div key={comment._id} className="border-l-2 pl-4 mb-2">
+          <p>{comment.content}</p>
+          <p>Upvotes: {comment.upvotes}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/client/src/components/LoginForm.tsx
+import { useState } from 'react';
+import { login } from '../services/api';
+
+export default function LoginForm() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await login({ username, password });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="p-4 max-w-md mx-auto">
+      <input
+        type="text"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        placeholder="Username"
+        className="border p-2 mb-2 w-full"
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+        className="border p-2 mb-2 w-full"
+      />
+      <button type="submit" className="bg-blue-500 text-white p-2 w-full">Login</button>
+    </form>
+  );
+}
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/client/src/components/Loader.tsx
+export default function Loader() {
+  return <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>;
+}
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/client/src/pages/Home.tsx
+import { useEffect, useState } from 'react';
+import { getStories } from '../services/api';
+import StoryCard from '../components/StoryCard';
+import { Story } from '../types';
+
+export default function Home() {
+  const [stories, setStories] = useState<Story[]>([]);
+
+  useEffect(() => {
+    getStories().then((data) => setStories(data));
+  }, []);
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl mb-4">Latest Stories</h1>
+      {stories.map((story) => (
+        <StoryCard key={story._id} story={story} />
+      ))}
+    </div>
+  );
+}
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/client/src/pages/SubmitStory.tsx
+import StoryForm from '../components/StoryForm';
+
+export default function SubmitStory() {
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl mb-4">Share Your Story</h1>
+      <StoryForm />
+    </div>
+  );
+}
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/client/src/pages/StoryPage.tsx
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { getStoryById } from '../services/api';
+import CommentThread from '../components/CommentThread';
+import { Story } from '../types';
+
+export default function StoryPage() {
+  const { id } = useParams();
+  const [story, setStory] = useState<Story | null>(null);
+
+  useEffect(() => {
+    if (id) {
+      getStoryById(id).then((data) => setStory(data));
+    }
+  }, [id]);
+
+  if (!story) return <div>Loading...</div>;
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl">{story.title}</h1>
+      <p>{story.content}</p>
+      <CommentThread comments={story.comments} />
+    </div>
+  );
+}
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/client/src/pages/Login.tsx
+import LoginForm from '../components/LoginForm';
+
+export default function Login() {
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl mb-4">Login</h1>
+      <LoginForm />
+    </div>
+  );
+}
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/client/src/services/api.ts
+import axios from 'axios';
+
+const API = axios.create({ baseURL: 'http://localhost:5000/api' });
+
+export const getStories = () => API.get('/stories').then((res) => res.data);
+export const getStoryById = (id: string) => API.get(`/stories/${id}`).then((res) => res.data);
+export const createStory = (story: { title: string; content: string }) => API.post('/stories', story);
+export const login = (credentials: { username: string; password: string }) => API.post('/auth/login', credentials);
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/client/src/types/index.ts
+export interface Story {
+  _id: string;
+  title: string;
+  content: string;
+  upvotes: number;
+  comments: Comment[];
+}
+
+export interface Comment {
+  _id: string;
+  content: string;
+  upvotes: number;
+}
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/server/controllers/storyController.ts
+import { Request, Response } from 'express';
+import Story from '../models/Story';
+
+export const getStories = async (_req: Request, res: Response) => {
+  const stories = await Story.find().populate('comments');
+  res.json(stories);
+};
+
+export const createStory = async (req: Request, res: Response) => {
+  const story = new Story(req.body);
+  await story.save();
+  res.status(201).json(story);
+};
+
+export const getStoryById = async (req: Request, res: Response) => {
+  const story = await Story.findById(req.params.id).populate('comments');
+  if (!story) return res.status(404).json({ message: 'Story not found' });
+  res.json(story);
+};
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/server/controllers/commentController.ts
+import { Request, Response } from 'express';
+import Comment from '../models/Comment';
+import Story from '../models/Story';
+
+export const createComment = async (req: Request, res: Response) => {
+  const comment = new Comment({ ...req.body, story: req.params.storyId });
+  await comment.save();
+  await Story.findByIdAndUpdate(req.params.storyId, { $push: { comments: comment._id } });
+  res.status(201).json(comment);
+};
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/server/controllers/authController.ts
+import { Request, Response } from 'express';
+import User from '../models/User';
+import { generateToken } from '../utils/generateToken';
+
+export const register = async (req: Request, res: Response) => {
+  const { username, password } = req.body;
+  const user = new User({ username, password });
+  await user.save();
+  const token = generateToken(user._id);
+  res.status(201).json({ token });
+};
+
+export const login = async (req: Request, res: Response) => {
+  const { username, password } = req.body;
+  const user = await User.findOne({ username });
+  if (!user || !(await user.matchPassword(password))) {
+    return res.status(401).json({ message: 'Invalid credentials' });
+  }
+  const token = generateToken(user._id);
+  res.json({ token });
+};
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/server/models/Story.ts
+import mongoose, { Schema } from 'mongoose';
+
+const storySchema = new Schema({
+  title: { type: String, required: true },
+  content: { type: String, required: true },
+  upvotes: { type: Number, default: 0 },
+  comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
+});
+
+export default mongoose.model('Story', storySchema);
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/server/models/Comment.ts
+import mongoose, { Schema } from 'mongoose';
+
+const commentSchema = new Schema({
+  content: { type: String, required: true },
+  upvotes: { type: Number, default: 0 },
+  story: { type: Schema.Types.ObjectId, ref: 'Story', required: true },
+});
+
+export default mongoose.model('Comment', commentSchema);
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/server/models/User.ts
+import mongoose, { Schema } from 'mongoose';
+import bcrypt from 'bcryptjs';
+
+const userSchema = new Schema({
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+});
+
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
+userSchema.methods.matchPassword = async function (password: string) {
+  return await bcrypt.compare(password, this.password);
+};
+
+export default mongoose.model('User', userSchema);
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/server/routes/storyRoutes.ts
+import { Router } from 'express';
+import { getStories, createStory, getStoryById } from '../controllers/storyController';
+
+const router = Router();
+
+router.get('/', getStories);
+router.post('/', createStory);
+router.get('/:id', getStoryById);
+
+export default router;
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/server/routes/commentRoutes.ts
+import { Router } from 'express';
+import { createComment } from '../controllers/commentController';
+
+const router = Router();
+
+router.post('/:storyId', createComment);
+
+export default router;
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/server/routes/authRoutes.ts
+import { Router } from 'express';
+import { register, login } from '../controllers/authController';
+
+const router = Router();
+
+router.post('/register', register);
+router.post('/login', login);
+
+export default router;
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/server/middleware/auth.ts
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+
+export const protect = (req: Request, res: Response, next: NextFunction) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ message: 'No token provided' });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    res.status(401).json({ message: 'Invalid token' });
+  }
+};
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/server/middleware/errorHandler.ts
+import { Request, Response, NextFunction } from 'express';
+
+export default function errorHandler(err: any, req: Request, res: Response, next: NextFunction) {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
+}
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/server/utils/generateToken.ts
+import jwt from 'jsonwebtoken';
+
+export const generateToken = (id: string) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET!, { expiresIn: '30d' });
+};
+</code></pre>
+<pre><code class="language-plaintext"># anonstories/README.md
+# AnonStories – Anonymous Confessions & Life Stories Forum
+
+**AnonStories** is a full-stack community forum built for people to share anonymous stories, confessions, or life experiences without the need for personal accounts. It enables meaningful storytelling, emotional expression, and community discussion in a safe, anonymous environment.
+
+## Table of Contents
+
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Environment Variables](#environment-variables)
+- [Getting Started](#getting-started)
+  - [Local Development](#local-development)
+  - [GitHub Codespaces](#github-codespaces)
+- [API Documentation](#api-documentation)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Features
+
+- Post fully anonymous confessions or life stories
+- Comment anonymously on stories (threaded)
+- Optional pseudonymous user registration and login
+- Voting system for stories and comments
+- Tags and categories for story discovery
+- Report system for abusive content
+- Admin/moderation tools
+- Mobile-first responsive design
+- Dark and light mode
+
+## Screenshots
+
+*Coming soon — add screenshots of the homepage, story view, and submission form here.*
+
+## Architecture
+
+[Client: React + TypeScript] <–> [Server: Node.js + Express] <–> [Database: MongoDB Atlas]
+
+- The **frontend** is built with React (Vite) and styled using Tailwind CSS.
+- The **backend** is a REST API built with Express and TypeScript.
+- **JWT** is used for secure, pseudonymous authentication.
+- **MongoDB** stores users, stories, and comments using Mongoose schemas.
+
+## Tech Stack
+
+### Frontend:
+- React
+- TypeScript
+- Tailwind CSS
+- Axios
+- React Router
+
+### Backend:
+- Node.js
+- Express.js
+- TypeScript
+- Mongoose (MongoDB)
+- JSON Web Tokens (JWT)
+- dotenv
+- cors
+
+### Dev & Build:
+- Vite
+- ts-node-dev
+- Concurrently
+- GitHub Codespaces or VS Code
+
+## Project Structure
+
+</code></pre>
+<p>anonstories/
+├── client/                         # React frontend
+│   ├── public/                     # Static assets
+│   ├── src/
+│   │   ├── components/             # Reusable UI components
+│   │   ├── pages/                  # Route-based views
+│   │   ├── services/               # API client
+│   │   ├── types/                  # Global types/interfaces
+│   │   └── App.tsx, main.tsx       # Main entry points
+│   ├── tailwind.config.js
+│   └── package.json
+│
+├── server/                         # Express backend
+│   ├── controllers/                # Business logic
+│   ├── routes/                     # API endpoints
+│   ├── models/                     # Mongoose schemas
+│   ├── middleware/                 # Auth, error handling
+│   ├── utils/                      # JWT, helpers
+│   ├── app.ts, server.ts           # Main server files
+│   └── package.json
+│
+├── .devcontainer/                  # GitHub Codespaces support
+├── .env.example                    # Sample environment variables
+├── package.json                    # Root workspace scripts
+└── README.md</p>
+<pre><code>
+## Environment Variables
+
+### `.env` for Backend (`/server/.env`):
+
+</code></pre>
+<p>PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_super_secret_key</p>
+<pre><code>
+## Getting Started
+
+### Local Development
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/anonstories.git
+cd anonstories
+</code></pre>
+<ol start="2">
+<li><p>Set up the frontend:</p>
+</li>
+</ol>
+<pre><code class="language-bash">cd client
+npm install
+npm run dev
+</code></pre>
+<ol start="3">
+<li><p>Set up the backend:</p>
+</li>
+</ol>
+<pre><code class="language-bash">cd ../server
+cp .env.example .env
+# Fill in .env with real values
+npm install
+npm run dev
+</code></pre>
+<ol start="4">
+<li><p>Visit <code>http://localhost:5173</code> (Vite) to access the app.</p>
+</li>
+</ol>
+<h3>GitHub Codespaces</h3>
+<p>If you’re using GitHub Codespaces:</p>
+<ol>
+<li><p>Open the repository in GitHub</p>
+</li>
+<li><p>Click <code>Code</code> → <code>Codespaces</code> → <code>Create codespace</code></p>
+</li>
+<li><p>Wait for the environment to initialize</p>
+</li>
+<li><p>Run backend with:</p>
+</li>
+</ol>
+<pre><code class="language-bash">cd server && npm run dev
+</code></pre>
+<ol start="5">
+<li><p>Run frontend with:</p>
+</li>
+</ol>
+<pre><code class="language-bash">cd client && npm run dev
+</code></pre>
+<h2>API Documentation</h2>
+<h3>Authentication</h3>
+<ul>
+<li><p><code>POST /api/auth/register</code> – Register a pseudonymous user</p>
+</li>
+<li><p><code>POST /api/auth/login</code> – Login and receive JWT token</p>
+</li>
+</ul>
+<h3>Stories</h3>
+<ul>
+<li><p><code>GET /api/stories</code> – Get all stories</p>
+</li>
+<li><p><code>POST /api/stories</code> – Submit a new story (auth optional)</p>
+</li>
+<li><p><code>GET /api/stories/:id</code> – Get story with comments</p>
+</li>
+<li><p><code>PUT /api/stories/:id/upvote</code> – Upvote a story</p>
+</li>
+</ul>
+<h3>Comments</h3>
+<ul>
+<li><p><code>POST /api/comments/:storyId</code> – Add a comment to a story</p>
+</li>
+<li><p><code>PUT /api/comments/:id/upvote</code> – Upvote a comment</p>
+</li>
+</ul>
+<h3>Admin (Future)</h3>
+<ul>
+<li><p><code>DELETE /api/stories/:id</code> – Delete a story (admin only)</p>
+</li>
+<li><p><code>DELETE /api/comments/:id</code> – Delete a comment (admin only)</p>
+</li>
+</ul>
+<h2>Deployment</h2>
+<h3>Frontend</h3>
+<p>You can deploy the frontend via:</p>
+<ul>
+<li><p>Vercel</p>
+</li>
+<li><p>Netlify</p>
+</li>
+</ul>
+<p>Build:</p>
+<pre><code class="language-bash">cd client
+npm run build
+</code></pre>
+<h3>Backend</h3>
+<p>Use:</p>
+<ul>
+<li><p>Railway</p>
+</li>
+<li><p>Render</p>
+</li>
+<li><p>Fly.io</p>
+</li>
+</ul>
+<p>Make sure to add the <code>.env</code> variables in your platform’s settings.</p>
+<h2>Contributing</h2>
+<ol>
+<li><p>Fork the project</p>
+</li>
+<li><p>Create a new branch: <code>git checkout -b feature/my-feature</code></p>
+</li>
+<li><p>Commit changes: <code>git commit -am 'Add new feature'</code></p>
+</li>
+<li><p>Push to your branch: <code>git push origin feature/my-feature</code></p>
+</li>
+<li><p>Create a Pull Request</p>
+</li>
+</ol>
+<p>All contributions are welcome: bug fixes, new features, improvements, documentation, etc.</p>
+<h2>License</h2>
+<p>This project is licensed under the MIT License. See the <code>LICENSE</code> file for details.</p>
+<pre><code></code></pre>
+</body></html>
